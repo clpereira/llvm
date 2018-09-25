@@ -22,13 +22,17 @@ enum Token {
   tok_invalid = -7
 };
 
+class Parser;
+
 class Lexer {
  private: 
   int lastChar = ' ';
   char lastSpecialChar = ' ';
-  std::string identifierStr;  // Filled in for tok_identifier
-  double numVal;              // Filler in for tok_number
+  static std::string identifierStr;  // Filled in for tok_identifier
+  static double numVal;              // Filler in for tok_number
   enum Token lastToken = tok_invalid;
+
+  friend class Parser;
 
  public:
   void printToken()

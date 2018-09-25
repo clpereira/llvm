@@ -18,6 +18,8 @@ class NumberExprAST : public ExprAST {
 
  public:
   NumberExprAST(double val) : val(val) {}
+  double getVal() const { return val; }
+
 };
 
 // VariableExprAST - Expression class for variables 

@@ -13,8 +13,11 @@ private:
   static Lexer lexer;
   
  public:
-  static int getNextToken() { lexer.getToken(); }
+  static int getNextToken() { return lexer.getToken(); }
 
+  static std::unique_ptr<ExprAST> parseNumberExpr();
+
+  // error handling
   static std::unique_ptr<ExprAST> logError(const char * str);
   static std::unique_ptr<PrototypeAST> logErrorP(const char * str);
 };
