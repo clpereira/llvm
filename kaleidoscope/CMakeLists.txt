@@ -3,12 +3,21 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
 
+# find the llvm-config file
 find_program(LLVM_CONFIG "llvm-config")
+# set the llvm config command 
 set(LLVM_CONFIG_COMMAND ${LLVM_CONFIG} "--cxxflags")
+# run llvm_command
 execute_process(COMMAND ${LLVM_CONFIG_COMMAND}
                 RESULT_VARIABLE HAD_ERROR
                 OUTPUT_VARIABLE CONFIG_OUTPUT)
-set(CMAKE_CXX_FLAGS ${OUTPUT_VARIABLE})
+
+if (NOT HAD_ERROR)
+  # attach output to cxx flags
+  set(CMAKE_CXX_FLAGS ${OUTPUT_VARIABLE})
+else()
+  message(FATAL_ERROR "llvm-config failed with status ${HAD_ERROR}")
+endif()
 
 project(kcomp)
 
