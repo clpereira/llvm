@@ -15,7 +15,17 @@ private:
  public:
   static int getNextToken() { return lexer.getToken(); }
 
+  // numberexpr ::= number
   static std::unique_ptr<ExprAST> parseNumberExpr();
+  // parenexpr ::= '(' expression ')'
+  static std::unique_ptr<ExprAST> parseParenExpr();
+  // identifierexpr
+  //   ::= identifier
+  //   ::= identifier '(' expression * ')'
+  static std::unique_ptr<ExprAST> parseIdentifierExpr();
+  // expression 
+  //   ::= binary binoprhs
+  static std::unique_ptr<ExprAST> parseExpression();
 
   // error handling
   static std::unique_ptr<ExprAST> logError(const char * str);
