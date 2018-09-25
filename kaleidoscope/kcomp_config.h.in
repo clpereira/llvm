@@ -1,0 +1,2 @@
+#define kcomp_VERSION_MAJOR @kcomp_VERSION_MAJOR@
+#define kcomp_VERSION_MINOR @kcomp_VERSION_MINOR@
