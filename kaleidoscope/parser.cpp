@@ -1,10 +1,23 @@
 #include "llvm/ADT/STLExtras.h"
 #include "parser.h"
 #include <iostream>
+#include <cctype>
 
 // Parser for Kaleidoscope
 int Parser::cur_tok;
 Lexer Parser::lexer;
+binop_precedence_t Parser::binop_precedence;
+BinopPrecedenceConstructor Parser::binop_precedence_constructor;
+
+// Fills in the precendence table
+BinopPrecedenceConstructor::BinopPrecedenceConstructor()
+{
+  // list of binary operators and their precendence
+  Parser::binop_precedence['<'] = 10;
+  Parser::binop_precedence['+'] = 20;
+  Parser::binop_precedence['-'] = 30;
+  Parser::binop_precedence['*'] = 40;  // highest priority
+}
   
 std::unique_ptr<ExprAST> Parser::parseNumberExpr()
 {
@@ -72,6 +85,12 @@ std::unique_ptr<ExprAST> Parser::parseIdentifierExpr()
 
 std::unique_ptr<ExprAST> Parser::parseExpression()
 {
+  auto lhs = parsePrimary();
+  if (!lhs)
+  {
+	return nullptr;
+  }
+  //return ParseBinOpRHS(0, std::move(lhs));
   return nullptr;
 }
 
@@ -81,7 +100,7 @@ std::unique_ptr<ExprAST> Parser::parsePrimary()
   {
   default: 
   {
-    return LogError("Unknown token when expecting an expression");
+    return logError("Unknown token when expecting an expression");
   }
   case tok_identifier:
   {
@@ -95,6 +114,26 @@ std::unique_ptr<ExprAST> Parser::parsePrimary()
   {
     return parseParenExpr();
   }
+  }
+}
+
+// get the precedence given a binary operator
+int Parser::getTokPrecedence()
+{
+  int tok_prec;
+  // invalid token
+  if (!isascii(cur_tok))
+  {
+    return -1;
+  }
+  // try finding the operator in the table
+  tok_prec = binop_precedence[cur_tok];
+  // not found
+  if (tok_prec <= 0)
+  {
+    return -1;
+  }
+  return tok_prec;
 }
 
 std::unique_ptr<ExprAST> Parser::logError(const char * str)
