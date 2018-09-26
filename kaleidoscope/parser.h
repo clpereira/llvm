@@ -12,7 +12,7 @@ private:
   static int cur_tok;
   static Lexer lexer;
   
- public:
+ private:
   static int getNextToken() { return lexer.getToken(); }
 
   // numberexpr ::= number
@@ -26,6 +26,11 @@ private:
   // expression 
   //   ::= binary binoprhs
   static std::unique_ptr<ExprAST> parseExpression();
+  // primary
+  //   ::= identifierexpr
+  //   ::= numberexpr
+  //   ::= parenexpr
+  static std::unique_ptr<ExprAST> parsePrimary();
 
   // error handling
   static std::unique_ptr<ExprAST> logError(const char * str);

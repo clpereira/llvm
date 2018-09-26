@@ -75,6 +75,28 @@ std::unique_ptr<ExprAST> Parser::parseExpression()
   return nullptr;
 }
 
+std::unique_ptr<ExprAST> Parser::parsePrimary()
+{
+  switch (cur_tok)
+  {
+  default: 
+  {
+    return LogError("Unknown token when expecting an expression");
+  }
+  case tok_identifier:
+  {
+    return parseIdentifierExpr();
+  }
+  case tok_number:
+  {
+    return parseNumberExpr(); 
+  }
+  case '(':
+  {
+    return parseParenExpr();
+  }
+}
+
 std::unique_ptr<ExprAST> Parser::logError(const char * str)
 {
   std::cerr << "LogError: " << str << std::endl;
