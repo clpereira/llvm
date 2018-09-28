@@ -49,6 +49,26 @@ private:
   //   ::= parenexpr
   static std::unique_ptr<ExprAST> parsePrimary();
 
+  // prototype
+  //   ::= id '(' id* ')'
+  static std::unique_ptr<ExprAST> parsePrototype();
+
+  // definition
+  //   ::= 'def' prototype expression
+  static std::unique_ptr<FunctionAST> parseDefinition();
+
+  // external 
+  //   ::= 'extern' prototype
+  static std::unique_ptr<PrototypeAST> parseExtern();
+
+  // toplevelexpr
+  //   ::= expression
+  static std::unique_ptr<FunctionAST> parseTopLevelExpr();
+
+  static void handleDefinition();
+  static void handleExtern();
+  static void handleTopLevelExpression();
+
   // get the precedence given a binary operator
   static int getTokPrecedence();
 

@@ -155,6 +155,38 @@ std::unique_ptr<ExprAST> Parser::parsePrimary()
   }
 }
 
+std::unique_ptr<ExprAST> Parser::parsePrototype()
+{
+  return nullptr;
+}
+
+std::unique_ptr<FunctionAST> Parser::parseDefinition()
+{
+  return nullptr;
+}
+
+std::unique_ptr<PrototypeAST> Parser::parseExtern()
+{
+  return nullptr;
+}
+
+std::unique_ptr<FunctionAST> Parser::parseTopLevelExpr()
+{
+  return nullptr;
+}
+
+void Parser::handleDefinition()
+{
+}
+
+void Parser::handleExtern()
+{
+}
+
+void Parser::handleTopLevelExpression()
+{
+}
+
 // get the precedence given a binary operator
 int Parser::getTokPrecedence()
 {
