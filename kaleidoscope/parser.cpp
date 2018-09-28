@@ -90,8 +90,46 @@ std::unique_ptr<ExprAST> Parser::parseExpression()
   {
 	return nullptr;
   }
-  //return ParseBinOpRHS(0, std::move(lhs));
-  return nullptr;
+  return parseBinOpRHS(0, std::move(lhs));
+}
+
+std::unique_ptr<ExprAST> Parser::parseBinOpRHS(int expr_prec,
+											   std::unique_ptr<ExprAST> lhs)
+{
+  // keep parsing until we run out of bin ops or until the precendence of the 
+  // next bin op is too low
+  while (1)
+  {
+	int tok_prec = getTokPrecedence();
+
+	// precedence is lower than the left side, return the left hand side
+	if (tok_prec < expr_prec)
+	{
+	  return lhs;
+	}
+	int bin_op = cur_tok;
+	getNextToken(); // eat the binary operator
+
+	// parse the next expression, to the right of the bin op
+	auto rhs = parsePrimary();
+	if (!rhs)
+	{
+	  return nullptr;
+	}
+
+	int next_prec = getTokPrecedence();
+	if (tok_prec < next_prec)
+	{
+	  rhs = parseBinOpRHS(tok_prec+1, std::move(rhs));
+	  if (!rhs)
+	  {
+		return nullptr;
+	  }
+	}
+	// put together the right and left hand sides
+	lhs = llvm::make_unique<BinaryExprAST>(bin_op, 
+										   std::move(lhs), std::move(rhs));
+  }
 }
 
 std::unique_ptr<ExprAST> Parser::parsePrimary()

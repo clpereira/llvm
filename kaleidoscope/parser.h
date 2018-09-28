@@ -39,6 +39,10 @@ private:
   // expression 
   //   ::= binary binoprhs
   static std::unique_ptr<ExprAST> parseExpression();
+  // binoprhs
+  //   ::= (['+'|'-'|'<'|'*']primary)*
+  static std::unique_ptr<ExprAST> parseBinOpRHS(int expr_prec,
+												std::unique_ptr<ExprAST> lhs);
   // primary
   //   ::= identifierexpr
   //   ::= numberexpr
