@@ -174,6 +174,37 @@ int Parser::getTokPrecedence()
   return tok_prec;
 }
 
+void Parser::mainloop()
+{
+  while (1)
+  {
+	switch (cur_tok)
+	{
+	case tok_eof:
+	{
+	  return;
+	}
+	case ';':
+	{
+	  getNextToken();
+	  break;
+	}
+	case tok_def:
+	{
+	  break;
+	}
+	case tok_extern:
+	{
+	  break;
+	}
+	default:
+	{
+	  break;
+	}
+	}
+  }
+}
+
 std::unique_ptr<ExprAST> Parser::logError(const char * str)
 {
   std::cerr << "LogError: " << str << std::endl;
@@ -184,4 +215,11 @@ std::unique_ptr<PrototypeAST> Parser::logErrorP(const char * str)
 {
   logError(str);
   return nullptr;
+}
+
+void Parser::parse()
+{
+  getNextToken();
+
+  mainloop();
 }

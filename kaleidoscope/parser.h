@@ -52,9 +52,14 @@ private:
   // get the precedence given a binary operator
   static int getTokPrecedence();
 
+  static void mainloop();
+
   // error handling
   static std::unique_ptr<ExprAST> logError(const char * str);
   static std::unique_ptr<PrototypeAST> logErrorP(const char * str);
+
+ public:
+  static void parse();
 };
 
 #endif
