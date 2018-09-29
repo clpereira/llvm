@@ -21,7 +21,7 @@ BinopPrecedenceConstructor::BinopPrecedenceConstructor()
   
 std::unique_ptr<ExprAST> Parser::parseNumberExpr()
 {
-  auto result = llvm::make_unique<NumberExprAST>(lexer.numVal);
+  auto result = llvm::make_unique<NumberExprAST>(Lexer::numVal);
   getNextToken(); // consume the number
   return std::move(result);
 }
@@ -157,7 +157,32 @@ std::unique_ptr<ExprAST> Parser::parsePrimary()
 
 std::unique_ptr<ExprAST> Parser::parsePrototype()
 {
-  return nullptr;
+  if (cur_tok != tok_identifier)
+  {
+	return logErrorP("Expected function name in prototype");
+  }
+
+  std::string fn_name = Lexer::identifierStr;
+  getNextToken();
+
+
+  if (cur_tok != '(')
+  {
+	return logErrorP("Expected '(' in prototype");
+  }
+
+  string_vector_t arg_names;
+  while (getNextToken() == tok_identifier)
+  {
+	arg_names.push_back(Lexer::identifierStr);
+  }
+  if (cur_tok != ')')
+  {
+	return logErrorP("Expected ')') in prototype");
+  }
+  getNextToken(); // eat ')'
+  
+  return llvm::make_unique<PrototypeAST>(fn_name, std::move(arg_names));
 }
 
 std::unique_ptr<FunctionAST> Parser::parseDefinition()
@@ -172,6 +197,13 @@ std::unique_ptr<PrototypeAST> Parser::parseExtern()
 
 std::unique_ptr<FunctionAST> Parser::parseTopLevelExpr()
 {
+  if (auto e = parseExpression())
+  {
+	// make an anonymous prototype
+	auto proto = llvm::make_unique<PrototypeAST>("__anon_expr",
+												 std::vector<std::string>());
+	return llvm::make_unique<FunctionAST>(std::move(proto), std::move(e));
+  }
   return nullptr;
 }
 
@@ -185,6 +217,15 @@ void Parser::handleExtern()
 
 void Parser::handleTopLevelExpression()
 {
+  // evaluate the top-level expression into an anonymous functions
+  if (parseTopLevelExpr())
+  {
+	std::cout << "Parsed a top-level expr\n";
+  }
+  else
+  {
+	getNextToken();
+  }
 }
 
 // get the precedence given a binary operator
@@ -223,6 +264,7 @@ void Parser::mainloop()
 	}
 	case tok_def:
 	{
+	  
 	  break;
 	}
 	case tok_extern:
@@ -252,6 +294,5 @@ std::unique_ptr<PrototypeAST> Parser::logErrorP(const char * str)
 void Parser::parse()
 {
   getNextToken();
-
   mainloop();
 }

@@ -8,8 +8,9 @@
 
 int main()
 {
-  std::cout << "Kaleidoscope compiler version: " << kcomp_VERSION_MAJOR << "." 
-                                                 << kcomp_VERSION_MINOR << std::endl;
+  std::cout << "Kaleidoscope compiler version: " 
+			<< kcomp_VERSION_MAJOR << "." 
+			<< kcomp_VERSION_MINOR << std::endl;
 #if 0
   Lexer lexer;
   while (lexer.getToken() != tok_eof)

@@ -67,7 +67,7 @@ typedef std::vector<std::string> string_vector_t;
 
 // PrototypeAST - This class represents the prototype of a function,
 // which captures its name, and its argument names
-class PrototypeAST {
+class PrototypeAST : public ExprAST {
 private:
   std::string name;
   string_vector_t args;
