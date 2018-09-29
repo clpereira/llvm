@@ -6,7 +6,9 @@ set(CMAKE_CXX_COMPILER clang++)
 # find the llvm-config file
 find_program(LLVM_CONFIG "llvm-config")
 # set the llvm config command 
-set(LLVM_CONFIG_COMMAND ${LLVM_CONFIG} "--cxxflags")
+# --libs core is missing from the command below, best is to script it so that
+# it can be extracted and then added automatically to target_link_libraries
+set(LLVM_CONFIG_COMMAND ${LLVM_CONFIG} "--cxxflags" "--ldflags" "--system-libs") 
 # run llvm_command
 execute_process(COMMAND ${LLVM_CONFIG_COMMAND}
                 RESULT_VARIABLE HAD_ERROR
@@ -35,7 +37,9 @@ configure_file(
 # add the binary tree to the search path for include files
 # so that it will find kcomp_config.h
 include_directories("${PROJECT_BINARY_DIR}"
-                    "/usr/include/llvm-6.0")
+                    "/usr/include/llvm-6.0"
+                    "/usr/include/llvm-c-6.0")
 
 # add the executable
-add_executable(kcomp entrypoint.cpp lexer.cpp parser.cpp)
+add_executable(kcomp entrypoint.cpp lexer.cpp parser.cpp codegen.cpp)
+target_link_libraries(kcomp LLVM-6.0)
