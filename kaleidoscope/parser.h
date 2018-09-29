@@ -26,7 +26,7 @@ private:
   static BinopPrecedenceConstructor binop_precedence_constructor;
   
 private:
-  static int getNextToken() { return cur_tok = lexer.getToken(); }
+  static int getNextToken();
 
   // numberexpr ::= number
   static std::unique_ptr<ExprAST> parseNumberExpr();
@@ -75,8 +75,8 @@ private:
   static void mainloop();
 
   // error handling
-  static std::unique_ptr<ExprAST> logError(const char * str);
-  static std::unique_ptr<PrototypeAST> logErrorP(const char * str);
+  static std::unique_ptr<ExprAST> logError(const std::string str);
+  static std::unique_ptr<PrototypeAST> logErrorP(const std::string str);
 
  public:
   static void parse();

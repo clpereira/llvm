@@ -39,33 +39,33 @@ class Lexer {
   {
     std::cout << "Lexer::lastToken: ";
     switch(lastToken)
-      {
+    {
       case tok_eof:
 	{
 	  std::cout << "EOF" << std::endl;
 	  break;
 	}
-      case tok_def:
+    case tok_def:
 	{
 	  std::cout << "def" << std::endl;
 	  break;
 	}
-      case tok_extern:
+    case tok_extern:
 	{
 	  std::cout << "extern" << std::endl;
 	  break;
 	}
-      case tok_identifier:
+    case tok_identifier:
 	{
 	  std::cout << "identifier: " << identifierStr << std::endl;
 	  break;
 	}
-      case tok_number:
+    case tok_number:
 	{
 	  std::cout << "number: " << std::dec << numVal << std::endl;
 	  break;
 	}
-      case tok_invalid:
+    case tok_invalid:
 	{
 	  std::cout << "invalid" << std::endl;
 	  break;
@@ -74,7 +74,7 @@ class Lexer {
 	{
 	  std::cout << "special character: " << char(lastSpecialChar) << std::endl;
 	}
-      }
+    }
   }
 
   // 
@@ -84,73 +84,74 @@ class Lexer {
   {
     // skip whitespaces
     while (isspace(lastChar))
-      {
-	lastChar = getchar();
-      }
+    {
+	  lastChar = getchar();
+    }
     // reads in an identifier
     if (isalpha(lastChar)) // identifier: [a-zA-Z][a-zA-Z0-9]*
-      {
-	identifierStr = lastChar;
+    {
+	  identifierStr = lastChar;
 
-	// read until a non alpha or number is found
-	while(isalnum((lastChar = getchar())))
+	  // read until a non alpha or number is found
+	  while(isalnum((lastChar = getchar())))
 	  {
 	    identifierStr += lastChar;
 	  }
-	if (identifierStr == "def")
+	  if (identifierStr == "def")
 	  {
 	    lastToken = tok_def;
 	    return tok_def;
 	  }
-	if (identifierStr == "extern")
+	  if (identifierStr == "extern")
 	  {
 	    lastToken = tok_extern;
 	    return tok_extern;
 	  }
-	// not a keywork, must be an identifier
-	lastToken = tok_identifier;
-	return tok_identifier;
-      }
+	  // not a keywork, must be an identifier
+	  lastToken = tok_identifier;
+	  return tok_identifier;
+	}
     // reads in a number
     if (isdigit(lastChar))  // numbers: [0-9.]+
-      {
-	std::string numStr;
-	do {
-	  numStr += lastChar;
-	  lastChar = getchar();
-	} while (isdigit(lastChar) || lastChar == '.');
+    {
+	  std::string numStr;
+	  do {
+		numStr += lastChar;
+		lastChar = getchar();
+	  } while (isdigit(lastChar) || lastChar == '.');
 
-	numVal = strtod(numStr.c_str(), 0);
-	if (errno != 0 && numVal == 0.0)
+	  numVal = strtod(numStr.c_str(), 0);
+	  if (errno != 0 && numVal == 0.0)
 	  {
 	    emitError("Invalid number: "+numStr);
 	  }
-	lastToken = tok_number;
-	return tok_number;
-      }
+	  lastToken = tok_number;
+	  return tok_number;
+    }
     if (lastChar == '#')
-      {
-	do {
-	  lastChar = getchar();
-	} while(lastChar != EOF && lastChar != '\n' && lastChar != '\r');
-	// anything but EOF, read in the next token
-	if (lastChar != EOF)
+    {
+	  do {
+		lastChar = getchar();
+	  } while(lastChar != EOF && lastChar != '\n' && lastChar != '\r');
+	  // anything but EOF, read in the next token
+	  if (lastChar != EOF)
 	  {
 	    return getToken();
 	  }
-      }
+    }
     // check for EOF
     if (lastChar == EOF)
-      {
-	lastToken = tok_eof;
-	return tok_eof;
-      }
-                        
+    {
+	  lastToken = tok_eof;
+	  return tok_eof;
+    }                    
     lastSpecialChar = lastChar;
     lastChar = getchar();
     lastToken = tok_special_char;
     return tok_special_char; 
   }
+
+  int getLastSpecialChar() const { return lastSpecialChar; }
 
  private:
   void emitError(std::string message)

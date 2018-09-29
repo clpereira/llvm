@@ -2,6 +2,7 @@
 #include "parser.h"
 #include <iostream>
 #include <cctype>
+#include <string>
 
 // Parser for Kaleidoscope
 int Parser::cur_tok;
@@ -17,6 +18,17 @@ BinopPrecedenceConstructor::BinopPrecedenceConstructor()
   Parser::binop_precedence['+'] = 20;
   Parser::binop_precedence['-'] = 30;
   Parser::binop_precedence['*'] = 40;  // highest priority
+}
+
+int Parser::getNextToken() 
+{ 
+  cur_tok = lexer.getToken(); 
+  //lexer.printToken();
+  if (cur_tok == tok_special_char)
+  {
+	cur_tok = lexer.getLastSpecialChar();
+  }
+  return cur_tok;
 }
   
 std::unique_ptr<ExprAST> Parser::parseNumberExpr()
@@ -161,14 +173,16 @@ std::unique_ptr<PrototypeAST> Parser::parsePrototype()
   {
 	return logErrorP("Expected function name in prototype");
   }
-
   std::string fn_name = Lexer::identifierStr;
   getNextToken();
 
-
   if (cur_tok != '(')
   {
-	return logErrorP("Expected '(' in prototype");
+	return logErrorP("Expected '(' ("+
+					 std::to_string(static_cast<int>('('))+
+					 ") in prototype, but found: '"+
+					 std::string(1, static_cast<char>(cur_tok))+
+					 "' ("+std::to_string(cur_tok)+")");
   }
 
   string_vector_t arg_names;
@@ -248,7 +262,7 @@ void Parser::handleTopLevelExpression()
   // evaluate the top-level expression into an anonymous functions
   if (parseTopLevelExpr())
   {
-	std::cout << "Parsed a top-level expr\n";
+	std::cout << "Parsed a top-level expr" << std::endl;
   }
   else
   {
@@ -309,13 +323,13 @@ void Parser::mainloop()
   }
 }
 
-std::unique_ptr<ExprAST> Parser::logError(const char * str)
+std::unique_ptr<ExprAST> Parser::logError(const std::string str)
 {
   std::cerr << "LogError: " << str << std::endl;
   return nullptr;
 }
 
-std::unique_ptr<PrototypeAST> Parser::logErrorP(const char * str)
+std::unique_ptr<PrototypeAST> Parser::logErrorP(const std::string str)
 {
   logError(str);
   return nullptr;
