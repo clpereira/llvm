@@ -26,7 +26,7 @@ private:
   static BinopPrecedenceConstructor binop_precedence_constructor;
   
 private:
-  static int getNextToken() { return lexer.getToken(); }
+  static int getNextToken() { return cur_tok = lexer.getToken(); }
 
   // numberexpr ::= number
   static std::unique_ptr<ExprAST> parseNumberExpr();
