@@ -28,13 +28,17 @@ class Lexer {
  private: 
   int lastChar = ' ';
   char lastSpecialChar = ' ';
-  static std::string identifierStr;  // Filled in for tok_identifier
-  static double numVal;              // Filler in for tok_number
+  std::string identifierStr;  // Filled in for tok_identifier
+  double numVal;              // Filler in for tok_number
   enum Token lastToken = tok_invalid;
+
+  static Lexer * p_instance; // singleton, only one instance of lexer allowed
 
   friend class Parser;
 
  public:
+  static Lexer * const instance();
+
   void printToken()
   {
     std::cout << "Lexer::lastToken: ";

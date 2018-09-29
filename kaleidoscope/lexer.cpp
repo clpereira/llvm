@@ -1,4 +1,12 @@
 #include "lexer.h"
 
-std::string Lexer::identifierStr; 
-double Lexer::numVal;              
+Lexer * Lexer::p_instance = nullptr;
+
+Lexer * const Lexer::instance()
+{
+  if (!p_instance)
+  {
+	p_instance = new Lexer();
+  }
+  return p_instance;
+}
