@@ -5,10 +5,13 @@
 #include <string>
 #include <vector>
 
+#include "k_llvm.h"
+
 // ExprAST Base class for all expression nodes of the tree
 class ExprAST {
  public:
   virtual ~ExprAST() {}
+  //virtual llvm::Value * codegen() = 0;
 };
 
 // Number ExprAST - Expression class for numeric literals
