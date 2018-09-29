@@ -21,7 +21,6 @@ private:
   friend class BinopPrecedenceConstructor;
 
   static int cur_tok;
-  static Lexer lexer;
   static binop_precedence_t binop_precedence; // bin op precendence table
   static BinopPrecedenceConstructor binop_precedence_constructor;
   
