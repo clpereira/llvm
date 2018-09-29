@@ -1,1 +1,4 @@
-a+b
+def foo()
+  a+b
+
+foo()
