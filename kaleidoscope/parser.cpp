@@ -1,4 +1,3 @@
-#include "llvm/ADT/STLExtras.h"
 #include "parser.h"
 #include <iostream>
 #include <cctype>
@@ -6,7 +5,6 @@
 
 // Parser for Kaleidoscope
 int Parser::cur_tok;
-Lexer Parser::lexer;
 binop_precedence_t Parser::binop_precedence;
 BinopPrecedenceConstructor Parser::binop_precedence_constructor;
 
@@ -22,18 +20,18 @@ BinopPrecedenceConstructor::BinopPrecedenceConstructor()
 
 int Parser::getNextToken() 
 { 
-  cur_tok = lexer.getToken(); 
-  //lexer.printToken();
+  cur_tok = Lexer::instance()->getToken(); 
+  //Lexer::instance()->printToken();
   if (cur_tok == tok_special_char)
   {
-	cur_tok = lexer.getLastSpecialChar();
+	cur_tok = Lexer::instance()->getLastSpecialChar();
   }
   return cur_tok;
 }
   
 std::unique_ptr<ExprAST> Parser::parseNumberExpr()
 {
-  auto result = llvm::make_unique<NumberExprAST>(Lexer::numVal);
+  auto result = llvm::make_unique<NumberExprAST>(Lexer::instance()->numVal);
   getNextToken(); // consume the number
   return std::move(result);
 }
@@ -56,7 +54,7 @@ std::unique_ptr<ExprAST> Parser::parseParenExpr()
 
 std::unique_ptr<ExprAST> Parser::parseIdentifierExpr()
 {
-  std::string id_name = Lexer::identifierStr;
+  std::string id_name = Lexer::instance()->identifierStr;
 
   getNextToken(); // consume the identifier
   
@@ -173,7 +171,7 @@ std::unique_ptr<PrototypeAST> Parser::parsePrototype()
   {
 	return logErrorP("Expected function name in prototype");
   }
-  std::string fn_name = Lexer::identifierStr;
+  std::string fn_name = Lexer::instance()->identifierStr;
   getNextToken();
 
   if (cur_tok != '(')
@@ -188,7 +186,7 @@ std::unique_ptr<PrototypeAST> Parser::parsePrototype()
   string_vector_t arg_names;
   while (getNextToken() == tok_identifier)
   {
-	arg_names.push_back(Lexer::identifierStr);
+	arg_names.push_back(Lexer::instance()->identifierStr);
   }
   if (cur_tok != ')')
   {
