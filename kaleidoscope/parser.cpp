@@ -155,7 +155,7 @@ std::unique_ptr<ExprAST> Parser::parsePrimary()
   }
 }
 
-std::unique_ptr<ExprAST> Parser::parsePrototype()
+std::unique_ptr<PrototypeAST> Parser::parsePrototype()
 {
   if (cur_tok != tok_identifier)
   {
@@ -187,12 +187,24 @@ std::unique_ptr<ExprAST> Parser::parsePrototype()
 
 std::unique_ptr<FunctionAST> Parser::parseDefinition()
 {
+  getNextToken(); // eat 'def'
+  auto proto = parsePrototype();
+  if (!proto)
+  {
+	return nullptr;
+  }
+  // the body
+  if (auto e = parseExpression())
+  {
+	return llvm::make_unique<FunctionAST>(std::move(proto), std::move(e));
+  }
   return nullptr;
 }
 
 std::unique_ptr<PrototypeAST> Parser::parseExtern()
 {
-  return nullptr;
+  getNextToken(); // eat 'extern'
+  return parsePrototype();
 }
 
 std::unique_ptr<FunctionAST> Parser::parseTopLevelExpr()
@@ -209,10 +221,26 @@ std::unique_ptr<FunctionAST> Parser::parseTopLevelExpr()
 
 void Parser::handleDefinition()
 {
+  if (parseDefinition())
+  {
+	std::cout << "Parsed a function definition" << std::endl;
+  }
+  else
+  {
+	getNextToken();
+  }
 }
 
 void Parser::handleExtern()
 {
+  if (parseExpression())
+  {
+	std::cout << "Parsed an extern" << std::endl;
+  }
+  else
+  {
+	getNextToken();
+  }
 }
 
 void Parser::handleTopLevelExpression()
@@ -264,15 +292,17 @@ void Parser::mainloop()
 	}
 	case tok_def:
 	{
-	  
+	  handleDefinition();
 	  break;
 	}
 	case tok_extern:
 	{
+	  handleExtern();
 	  break;
 	}
 	default:
 	{
+	  handleTopLevelExpression();
 	  break;
 	}
 	}

@@ -51,7 +51,7 @@ private:
 
   // prototype
   //   ::= id '(' id* ')'
-  static std::unique_ptr<ExprAST> parsePrototype();
+  static std::unique_ptr<PrototypeAST> parsePrototype();
 
   // definition
   //   ::= 'def' prototype expression
