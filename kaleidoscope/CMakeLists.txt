@@ -41,5 +41,5 @@ include_directories("${PROJECT_BINARY_DIR}"
                     "/usr/include/llvm-c-6.0")
 
 # add the executable
-add_executable(kcomp entrypoint.cpp lexer.cpp parser.cpp codegen.cpp)
+add_executable(kcomp entrypoint.cpp ast.cpp lexer.cpp parser.cpp codegen.cpp error.cpp)
 target_link_libraries(kcomp LLVM-6.0)
