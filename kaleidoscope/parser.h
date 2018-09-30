@@ -73,10 +73,6 @@ private:
 
   static void mainloop();
 
-  // error handling
-  static std::unique_ptr<ExprAST> logError(const std::string str);
-  static std::unique_ptr<PrototypeAST> logErrorP(const std::string str);
-
  public:
   static void parse();
 };

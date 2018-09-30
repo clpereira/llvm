@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "error.h"
 #include <iostream>
 #include <cctype>
 #include <string>
@@ -46,7 +47,7 @@ std::unique_ptr<ExprAST> Parser::parseParenExpr()
   }
   if (cur_tok != ')')
   {
-	return logError("expected ')'");
+	return Error::log("expected ')'");
   }
   getNextToken(); // eat next ')'
   return V;
@@ -83,7 +84,7 @@ std::unique_ptr<ExprAST> Parser::parseIdentifierExpr()
 	  }
 	  if (cur_tok != ',')
 	  {
-		return logError("Expected ')' or ',' in argument list");
+		return Error::log("Expected ')' or ',' in argument list");
 	  }
 	  getNextToken();
 	}
@@ -160,7 +161,7 @@ std::unique_ptr<ExprAST> Parser::parsePrimary()
   }
   default: 
   {
-    return logError("Unknown token when expecting an expression");
+    return Error::log("Unknown token when expecting an expression");
   }
   }
 }
@@ -169,14 +170,14 @@ std::unique_ptr<PrototypeAST> Parser::parsePrototype()
 {
   if (cur_tok != tok_identifier)
   {
-	return logErrorP("Expected function name in prototype");
+	return Error::logP("Expected function name in prototype");
   }
   std::string fn_name = Lexer::instance()->identifierStr;
   getNextToken();
 
   if (cur_tok != '(')
   {
-	return logErrorP("Expected '(' ("+
+	return Error::logP("Expected '(' ("+
 					 std::to_string(static_cast<int>('('))+
 					 ") in prototype, but found: '"+
 					 std::string(1, static_cast<char>(cur_tok))+
@@ -190,7 +191,7 @@ std::unique_ptr<PrototypeAST> Parser::parsePrototype()
   }
   if (cur_tok != ')')
   {
-	return logErrorP("Expected ')') in prototype");
+	return Error::logP("Expected ')') in prototype");
   }
   getNextToken(); // eat ')'
   
@@ -319,18 +320,6 @@ void Parser::mainloop()
 	}
 	}
   }
-}
-
-std::unique_ptr<ExprAST> Parser::logError(const std::string str)
-{
-  std::cerr << "LogError: " << str << std::endl;
-  return nullptr;
-}
-
-std::unique_ptr<PrototypeAST> Parser::logErrorP(const std::string str)
-{
-  logError(str);
-  return nullptr;
 }
 
 void Parser::parse()
