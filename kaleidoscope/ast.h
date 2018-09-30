@@ -11,7 +11,7 @@
 class ExprAST {
  public:
   virtual ~ExprAST() {}
-  //virtual llvm::Value * codegen() = 0;
+  virtual llvm::Value * codegen() = 0;
 };
 
 // Number ExprAST - Expression class for numeric literals
@@ -22,7 +22,7 @@ class NumberExprAST : public ExprAST {
  public:
   NumberExprAST(double val) : val(val) {}
   double getVal() const { return val; }
-
+  llvm::Value * codegen() override;
 };
 
 // VariableExprAST - Expression class for variables 
@@ -32,6 +32,7 @@ private:
 
 public:
   VariableExprAST(const std::string &name) : name(name) {}
+  llvm::Value * codegen() override;
 };
 
 // BinaryExprAST - Expression class for a binary operator
@@ -47,6 +48,8 @@ public:
 	:
 	op(op),
 	lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+
+	llvm::Value * codegen() override;
 };
 
 typedef std::vector<std::unique_ptr<ExprAST>> expr_ast_vector_t;
@@ -63,6 +66,8 @@ public:
 	:
 	callee(callee),
 	args(std::move(args)) {}
+
+	llvm::Value * codegen() override;
 };
 
 
@@ -81,6 +86,7 @@ public:
 	name(name), args(std::move(args)) {}
 
 	const std::string &getname() const { return name; }
+	llvm::Function * codegen();
 };
 
 // FunctionAST - This calss represents a function definition itself
@@ -93,6 +99,8 @@ public:
 			  std::unique_ptr<ExprAST> body)
 	:
 	proto(std::move(proto)), body(std::move(body)) {}
+
+	llvm::Function * codegen();
 };
 
 #endif
