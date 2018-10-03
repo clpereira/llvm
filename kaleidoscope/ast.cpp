@@ -93,7 +93,7 @@ llvm::Function * PrototypeAST::codegen()
   llvm::Function * f = llvm::Function::Create(ft, 
 											  llvm::Function::ExternalLinkage, 
 											  name, 
-											  Codegen::the_module);
+											  Codegen::the_module.get());
 
   // set names for all arguments
   unsigned idx = 0;

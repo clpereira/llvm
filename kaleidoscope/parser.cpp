@@ -234,9 +234,14 @@ std::unique_ptr<FunctionAST> Parser::parseTopLevelExpr()
 
 void Parser::handleDefinition()
 {
-  if (parseDefinition())
+  if (auto fn_ast = parseDefinition())
   {
-	std::cout << "Parsed a function definition" << std::endl;
+	if (auto * fn_ir = fn_ast->codegen())
+	{
+	  std::cout << "Parsed a function definition:" << std::endl;
+	  fn_ir->print(llvm::errs());
+	  std::cout << std::endl;
+	}
   }
   else
   {
@@ -246,9 +251,14 @@ void Parser::handleDefinition()
 
 void Parser::handleExtern()
 {
-  if (parseExpression())
+  if (auto proto_ast = parseExtern())
   {
-	std::cout << "Parsed an extern" << std::endl;
+	if (auto * fn_ir = proto_ast->codegen())
+	{
+	  std::cout << "Parsed an extern:" << std::endl;
+	  fn_ir->print(llvm::errs());
+	  std::cout << std::endl;
+	}
   }
   else
   {
@@ -259,9 +269,14 @@ void Parser::handleExtern()
 void Parser::handleTopLevelExpression()
 {
   // evaluate the top-level expression into an anonymous functions
-  if (parseTopLevelExpr())
+  if (auto fn_ast = parseTopLevelExpr())
   {
-	std::cout << "Parsed a top-level expr" << std::endl;
+	if (auto * fn_ir = fn_ast->codegen())
+	{
+	  std::cout << "Parsed a top-level expr: " << std::endl;
+	  fn_ir->print(llvm::errs());
+	  std::cout << std::endl;
+	}
   }
   else
   {

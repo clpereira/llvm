@@ -5,20 +5,19 @@
 #include "ast.h"
 #include "parser.h"
 #include "kcomp_config.h"
+#include "codegen.h"
 
 int main()
 {
   std::cout << "Kaleidoscope compiler version: " 
 			<< kcomp_VERSION_MAJOR << "." 
 			<< kcomp_VERSION_MINOR << std::endl;
-#if 0
-  Lexer lexer;
-  while (lexer.getToken() != tok_eof)
-  {
-    lexer.printToken();
-  }
-#else
+
+  Codegen::the_module = llvm::make_unique<llvm::Module>("my cool jit", 
+														Codegen::the_context);
   Parser::parse();
-#endif
+
+  Codegen::the_module->print(llvm::errs(), nullptr);
+
   return 0;
 }

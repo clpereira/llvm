@@ -10,7 +10,7 @@ class Codegen {
  public:
   static llvm::LLVMContext the_context;
   static llvm::IRBuilder<> builder;
-  static llvm::Module * the_module;
+  static std::unique_ptr<llvm::Module> the_module;
   static std::map<std::string, llvm::Value *> named_values;
 };
 
