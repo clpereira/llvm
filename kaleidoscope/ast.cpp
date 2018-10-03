@@ -84,7 +84,24 @@ llvm::Value * CallExprAST::codegen()
 
 llvm::Function * PrototypeAST::codegen()
 {
-  return nullptr;
+  // make the function type: double(double,double) etc...
+  std::vector<llvm::Type *> doubles(args.size(), 
+      llvm::Type::getDoubleTy(Codegen::the_context));
+  llvm::FunctionType * ft = llvm::FunctionType::get(
+      llvm::Type::getDoubleTy(Codegen::the_context),
+	  doubles, false);
+  llvm::Function * f = llvm::Function::Create(ft, 
+											  llvm::Function::ExternalLinkage, 
+											  name, 
+											  Codegen::the_module);
+
+  // set names for all arguments
+  unsigned idx = 0;
+  for (auto &arg : f->args())
+  {
+	arg.setName(args[idx++]);
+  }
+  return f;
 }
 
 llvm::Function * FunctionAST::codegen()
