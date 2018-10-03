@@ -106,6 +106,43 @@ llvm::Function * PrototypeAST::codegen()
 
 llvm::Function * FunctionAST::codegen()
 {
+  llvm::Function * the_function = 
+	Codegen::the_module->getFunction(proto->getname());
+  
+  if (!the_function)
+  {
+	the_function = proto->codegen();
+  }
+  if (!the_function)
+  {
+	return nullptr;
+  }
+  if (!the_function->empty())
+  {
+	return (llvm::Function *)Error::logV("Function cannot be redefined");
+  }
+  // create a new basic block to start insertion into 
+  llvm::BasicBlock * bb = 
+	llvm::BasicBlock::Create(Codegen::the_context,
+							 "entry",
+							 the_function);
+  Codegen::builder.SetInsertPoint(bb);
+  
+  // record the function arguments in the named values map
+  Codegen::named_values.clear();
+  for (auto &arg : the_function->args())
+  {
+	Codegen::named_values[arg.getName()] = &arg;
+  }
+  if (llvm::Value * ret_val = body->codegen())
+  {
+	// finish off the function
+	Codegen::builder.CreateRet(ret_val);
+	//validate the generated code, checking for consistency
+	llvm::verifyFunction(*the_function);
+	return the_function;
+  }
+  the_function->eraseFromParent();
   return nullptr;
 }
 
