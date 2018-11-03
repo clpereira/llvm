@@ -91,9 +91,8 @@ llvm::Function * PrototypeAST::codegen()
       llvm::Type::getDoubleTy(Codegen::the_context),
 	  doubles, false);
   llvm::Function * f = llvm::Function::Create(ft, 
-											  llvm::Function::ExternalLinkage, 
-											  name, 
-											  Codegen::the_module.get());
+      llvm::Function::ExternalLinkage, 
+      name, Codegen::the_module.get());
 
   // set names for all arguments
   unsigned idx = 0;
@@ -124,8 +123,8 @@ llvm::Function * FunctionAST::codegen()
   // create a new basic block to start insertion into 
   llvm::BasicBlock * bb = 
 	llvm::BasicBlock::Create(Codegen::the_context,
-							 "entry",
-							 the_function);
+		                 "entry",
+			         the_function);
   Codegen::builder.SetInsertPoint(bb);
   
   // record the function arguments in the named values map
@@ -140,6 +139,9 @@ llvm::Function * FunctionAST::codegen()
 	Codegen::builder.CreateRet(ret_val);
 	//validate the generated code, checking for consistency
 	llvm::verifyFunction(*the_function);
+	// optimize the funciton
+	Codegen::fpm.run(*the_function);
+
 	return the_function;
   }
   the_function->eraseFromParent();
