@@ -12,9 +12,6 @@ void Codegen::initializeModuleAndPassManager()
 	// open a new module
 	the_module = llvm::make_unique<llvm::Module>("my cool jit", the_context);
 
-	// create a pass manager
-	//fpm = llvm::make_unique<llvm::legacy::FunctionPassManager>(the_module.get());
-
 	fpm.add(llvm::createInstructionCombiningPass());
 	fpm.add(llvm::createReassociatePass());
 	fpm.add(llvm::createGVNPass());
