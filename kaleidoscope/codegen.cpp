@@ -6,7 +6,6 @@ std::unique_ptr<llvm::Module> Codegen::the_module;
 std::map<std::string, llvm::Value *> Codegen::named_values;
 llvm::legacy::FunctionPassManager Codegen::fpm(Codegen::the_module.get());
 
-
 void Codegen::initializeModuleAndPassManager()
 {
 	// open a new module

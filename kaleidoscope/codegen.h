@@ -1,7 +1,6 @@
 #ifndef _CODEGEN_H_
 #define _CODEGEN_H_
 
-#include "ast.h"
 #include "k_llvm.h"
 #include <map>
 #include <string>

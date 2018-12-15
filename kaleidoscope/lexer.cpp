@@ -2,7 +2,7 @@
 
 Lexer * Lexer::p_instance = nullptr;
 
-Lexer * const Lexer::instance()
+Lexer * Lexer::instance()
 {
   if (!p_instance)
   {

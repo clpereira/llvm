@@ -37,7 +37,7 @@ class Lexer {
   friend class Parser;
 
  public:
-  static Lexer * const instance();
+  static Lexer * instance();
 
   void printToken()
   {
