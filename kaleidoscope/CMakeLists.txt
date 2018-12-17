@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 2.6)
-
-set(CMAKE_C_COMPILER clang)
+cmake_minimum_required(VERSION 2.6) 
+set(CMAKE_C_COMPILER clang) 
 set(CMAKE_CXX_COMPILER clang++)
 set(LLVM_SRC_DIR "/Users/cristiano/development/llvm/llvm-7.0.0.src")
 
@@ -19,8 +18,11 @@ execute_process(COMMAND ${LLVM_CXX_FLAGS_CONFIG_COMMAND}
                 OUTPUT_VARIABLE CONFIG_OUTPUT)
 
 if (NOT HAD_ERROR)
-  # attach output to cxx flags
+  # remove all newlines
   string(REPLACE "\n" " " STRIPPED_CONFIG_OUTPUT ${CONFIG_OUTPUT})
+  # remove warning configs that cause are unrecognized
+  string(REPLACE "-Wno-class-memaccess" " " STRIPPED_CONFIG_OUTPUT ${STRIPPED_CONFIG_OUTPUT})
+  # attach output to cxx flags
   set(CMAKE_CXX_FLAGS ${STRIPPED_CONFIG_OUTPUT})
 else()
   message(FATAL_ERROR "llvm-config failed with status ${HAD_ERROR}")
