@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "codegen.h"
 #include "error.h"
 #include <iostream>
 #include <cctype>
@@ -105,41 +106,41 @@ std::unique_ptr<ExprAST> Parser::parseExpression()
 }
 
 std::unique_ptr<ExprAST> Parser::parseBinOpRHS(int expr_prec,
-											   std::unique_ptr<ExprAST> lhs)
+					       std::unique_ptr<ExprAST> lhs)
 {
   // keep parsing until we run out of bin ops or until the precendence of the 
   // next bin op is too low
   while (1)
   {
-	int tok_prec = getTokPrecedence();
+    int tok_prec = getTokPrecedence();
 
-	// precedence is lower than the left side, return the left hand side
-	if (tok_prec < expr_prec)
-	{
-	  return lhs;
-	}
-	int bin_op = cur_tok;
-	getNextToken(); // eat the binary operator
+    // precedence is lower than the left side, return the left hand side
+    if (tok_prec < expr_prec)
+    {
+      return lhs;
+    }
+    int bin_op = cur_tok;
+    getNextToken(); // eat the binary operator
+    
+    // parse the next expression, to the right of the bin op
+    auto rhs = parsePrimary();
+    if (!rhs)
+    {
+      return nullptr;
+    }
 
-	// parse the next expression, to the right of the bin op
-	auto rhs = parsePrimary();
-	if (!rhs)
-	{
-	  return nullptr;
-	}
-
-	int next_prec = getTokPrecedence();
-	if (tok_prec < next_prec)
-	{
-	  rhs = parseBinOpRHS(tok_prec+1, std::move(rhs));
-	  if (!rhs)
-	  {
-		return nullptr;
-	  }
-	}
-	// put together the right and left hand sides
-	lhs = llvm::make_unique<BinaryExprAST>(bin_op, 
-										   std::move(lhs), std::move(rhs));
+    int next_prec = getTokPrecedence();
+    if (tok_prec < next_prec)
+    {
+      rhs = parseBinOpRHS(tok_prec+1, std::move(rhs));
+      if (!rhs)
+      {
+	return nullptr;
+      }
+    }
+    // put together the right and left hand sides
+    lhs = llvm::make_unique<BinaryExprAST>(bin_op, 
+					   std::move(lhs), std::move(rhs));
   }
 }
 
@@ -271,16 +272,28 @@ void Parser::handleTopLevelExpression()
   // evaluate the top-level expression into an anonymous functions
   if (auto fn_ast = parseTopLevelExpr())
   {
-	if (auto * fn_ir = fn_ast->codegen())
-	{
-	  std::cout << "Parsed a top-level expr: " << std::endl;
-	  fn_ir->print(llvm::errs());
-	  std::cout << std::endl;
-	}
+    if (fn_ast->codegen())
+    {
+      auto h = Codegen::jit->addModule(std::move(Codegen::the_module));
+      Codegen::initializeModuleAndPassManager();
+
+      // Search the JIT for the __anon_expr symbol
+      auto ExprSymbol = Codegen::jit->findSymbol("__anon_expr");
+      assert(ExprSymbol && "Function not found");
+
+      // get the symbols' address and cast it to the right type (takes no
+      // arguments, returns a double) so we can call it as a native function
+      double (*fp)() = (double(*)())(intptr_t)cantFail(ExprSymbol.getAddress());
+      std::cerr << "Function address: " << fp << std::endl;
+      std::cerr << "Evaluated to " << fp() << std::endl;
+
+      // Delete the anonymous expression module from the JIT
+      Codegen::jit->removeModule(h);
+    }
   }
   else
   {
-	getNextToken();
+    getNextToken();
   }
 }
 

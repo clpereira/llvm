@@ -7,9 +7,6 @@
 #include "parser.h"
 
 class KCompiler {
-private:
-  static std::unique_ptr<llvm::orc::KaleidoscopeJIT> jit;
-
 public:
   static void initialize_and_run();
 };
