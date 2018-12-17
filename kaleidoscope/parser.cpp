@@ -284,7 +284,6 @@ void Parser::handleTopLevelExpression()
       // get the symbols' address and cast it to the right type (takes no
       // arguments, returns a double) so we can call it as a native function
       double (*fp)() = (double(*)())(intptr_t)cantFail(ExprSymbol.getAddress());
-      std::cerr << "Function address: " << fp << std::endl;
       std::cerr << "Evaluated to " << fp() << std::endl;
 
       // Delete the anonymous expression module from the JIT
@@ -320,6 +319,7 @@ void Parser::mainloop()
 {
   while (1)
   {
+        std::cerr << "ready> ";
 	switch (cur_tok)
 	{
 	case tok_eof:
@@ -352,6 +352,7 @@ void Parser::mainloop()
 
 void Parser::parse()
 {
+  std::cerr << "ready> ";
   getNextToken();
   mainloop();
 }
