@@ -7,6 +7,7 @@
 #include <cerrno>
 #include <iostream>
 
+// definition of various tokens
 enum Token {
   tok_eof = -1,
 
@@ -28,18 +29,18 @@ class Lexer {
  private: 
   int lastChar = ' ';
   char lastSpecialChar = ' ';
-  std::string identifierStr;  // Filled in for tok_identifier
-  double numVal;              // Filler in for tok_number
-  enum Token lastToken = tok_invalid;
+  std::string identifierStr;          // Filled in for tok_identifier
+  double numVal;                      // Filler in for tok_number
+  enum Token lastToken = tok_invalid; // last processed token
 
   static Lexer * p_instance; // singleton, only one instance of lexer allowed
 
-  friend class Parser;
+  friend class Parser; // allow Parser to access the private members of the lexer
 
  public:
   static Lexer * instance();
 
-  void printToken()
+  void printLastToken()
   {
     std::cout << "Lexer::lastToken: ";
     switch(lastToken)
@@ -89,72 +90,71 @@ class Lexer {
     // skip whitespaces
     while (isspace(lastChar))
     {
-	  lastChar = getchar();
+      lastChar = getchar();
     }
     // reads in an identifier
     if (isalpha(lastChar)) // identifier: [a-zA-Z][a-zA-Z0-9]*
     {
-	  identifierStr = lastChar;
+      identifierStr = lastChar;
 
-	  // read until a non alpha or number is found
-	  while(isalnum((lastChar = getchar())))
-	  {
-	    identifierStr += lastChar;
-	  }
-	  if (identifierStr == "def")
-	  {
-	    lastToken = tok_def;
-	    return tok_def;
-	  }
-	  if (identifierStr == "extern")
-	  {
-	    lastToken = tok_extern;
-	    return tok_extern;
-	  }
-	  // not a keywork, must be an identifier
-	  lastToken = tok_identifier;
-	  return tok_identifier;
-	}
+      // read until a non alpha or number is found
+      while(isalnum((lastChar = getchar())))
+      {
+	identifierStr += lastChar;
+      }
+      if (identifierStr == "def")
+      {
+	lastToken = tok_def;
+	return tok_def;
+      }
+      if (identifierStr == "extern")
+      {
+	lastToken = tok_extern;
+	return tok_extern;
+      }
+      // not a keywork, must be an identifier
+      lastToken = tok_identifier;
+      return tok_identifier;
+    }
     // reads in a number
     if (isdigit(lastChar))  // numbers: [0-9.]+
     {
-	  std::string numStr;
-	  do {
-		numStr += lastChar;
-		lastChar = getchar();
-	  } while (isdigit(lastChar) || lastChar == '.');
-
-	  numVal = strtod(numStr.c_str(), 0);
-	  if (errno != 0 && numVal == 0.0)
-	  {
-	    emitError("Invalid number: "+numStr);
-	  }
-	  lastToken = tok_number;
-	  return tok_number;
+      std::string numStr;
+      do {
+	numStr += lastChar;
+	lastChar = getchar();
+      } while (isdigit(lastChar) || lastChar == '.');
+      
+      numVal = strtod(numStr.c_str(), 0);
+      if (errno != 0 && numVal == 0.0)
+      {
+	emitError("Invalid number: "+numStr);
+      }
+      lastToken = tok_number;
+      return tok_number;
     }
     if (lastChar == '#')
     {
-	  do {
-		lastChar = getchar();
-	  } while(lastChar != EOF && lastChar != '\n' && lastChar != '\r');
-	  // anything but EOF, read in the next token
-	  if (lastChar != EOF)
-	  {
-	    return getToken();
-	  }
+      do {
+	lastChar = getchar();
+      } while(lastChar != EOF && lastChar != '\n' && lastChar != '\r');
+      // anything but EOF, read in the next token
+      if (lastChar != EOF)
+      {
+	return getToken();
+      }
     }
     // check for EOF
     if (lastChar == EOF)
     {
-	  lastToken = tok_eof;
-	  return tok_eof;
+      lastToken = tok_eof;
+      return tok_eof;
     }                    
     lastSpecialChar = lastChar;
     lastChar = getchar();
     lastToken = tok_special_char;
     return tok_special_char; 
   }
-
   int getLastSpecialChar() const { return lastSpecialChar; }
 
  private:
