@@ -10,7 +10,7 @@ find_program(LLVM_CONFIG "llvm-config")
 # it can be extracted and then added automatically to target_link_libraries
 #set(LLVM_CONFIG_COMMAND ${LLVM_CONFIG} "--libs" "core" "--cxxflags" "--ldflags" "--system-libs") 
 set(LLVM_CXX_FLAGS_CONFIG_COMMAND ${LLVM_CONFIG} "--cxxflags") 
-set(LLVM_LD_FLAGS_CONFIG_COMMAND ${LLVM_CONFIG} "--ldflags") 
+set(LLVM_LD_FLAGS_CONFIG_COMMAND ${LLVM_CONFIG} "--ldflags" "--system-libs" "--libs" "core" "mcjit" "native")
 
 # run llvm_command
 execute_process(COMMAND ${LLVM_CXX_FLAGS_CONFIG_COMMAND}
@@ -58,9 +58,11 @@ configure_file(
 # so that it will find kcomp_config.h
 include_directories("${PROJECT_BINARY_DIR}"
                     "/usr/local/opt/llvm/include/"
+                    "/usr/local/opt/zlib/include/"
                     "${LLVM_SRC_DIR}")
 
 # add the executable
 add_executable(kcomp entrypoint.cpp kcomp.cpp ast.cpp lexer.cpp parser.cpp codegen.cpp error.cpp)
+#add_executable(kcomp toy.cpp)
 #target_link_libraries(kcomp LLVM-6.0)
 target_link_libraries(kcomp LLVM) 
