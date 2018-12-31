@@ -25,6 +25,21 @@ class NumberExprAST : public ExprAST {
   llvm::Value * codegen() override;
 };
 
+class IfExprAST : public ExprAST {
+  std::unique_ptr<ExprAST> Cond, Then, Else;
+
+  public:
+    IfExprAST(std::unique_ptr<ExprAST> Cond, 
+              std::unique_ptr<ExprAST> Then, 
+              std::unique_ptr<ExprAST> Else)
+      :
+      Cond(std::move(Cond)),
+      Then(std::move(Then)),
+      Else(std::move(Else))
+    {}
+    llvm::Value *codegen() override;
+};
+
 // VariableExprAST - Expression class for variables 
 class VariableExprAST: public ExprAST {
 private:
@@ -81,12 +96,17 @@ private:
   string_vector_t args;
 
 public:
+  static std::map<std::string, std::unique_ptr<PrototypeAST>> function_protos;
+
+public:
   PrototypeAST(const std::string &name, string_vector_t args)
 	:
 	name(name), args(std::move(args)) {}
 
 	const std::string &getname() const { return name; }
 	llvm::Function * codegen();
+
+  static llvm::Function * getFunction(std::string name);
 };
 
 // FunctionAST - This calss represents a function definition itself

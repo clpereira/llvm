@@ -18,17 +18,18 @@ public:
 // Parser for Kaleidoscope
 class Parser {
 private:
-  friend class BinopPrecedenceConstructor;
+  friend class BinopPrecedenceConstructor; // needs to acess the precedence table
 
   static int cur_tok;
   static binop_precedence_t binop_precedence; // bin op precendence table
   static BinopPrecedenceConstructor binop_precedence_constructor;
   
 private:
-  static int getNextToken();
-
   // numberexpr ::= number
   static std::unique_ptr<ExprAST> parseNumberExpr();
+  // ifexpr ::= 'if' expression 'then' expression 'else' expression
+  static std::unique_ptr<ExprAST> parseIfExpr();
+ 
   // parenexpr ::= '(' expression ')'
   static std::unique_ptr<ExprAST> parseParenExpr();
   // identifierexpr
@@ -40,8 +41,8 @@ private:
   static std::unique_ptr<ExprAST> parseExpression();
   // binoprhs
   //   ::= (['+'|'-'|'<'|'*']primary)*
-  static std::unique_ptr<ExprAST> parseBinOpRHS(int expr_prec,
-												std::unique_ptr<ExprAST> lhs);
+  static std::unique_ptr<ExprAST> parseBinOpRHS(int expr_prec, 
+                                                std::unique_ptr<ExprAST> lhs);
   // primary
   //   ::= identifierexpr
   //   ::= numberexpr
@@ -74,6 +75,7 @@ private:
   static void mainloop();
 
  public:
+  static int getNextToken();
   static void parse();
 };
 

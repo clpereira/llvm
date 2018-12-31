@@ -9,8 +9,11 @@ void KCompiler::initialize_and_run()
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
+
+  std::cerr << "ready> ";
+  Parser::getNextToken();
+
   Codegen::jit = llvm::make_unique<llvm::orc::KaleidoscopeJIT>();
   Codegen::initializeModuleAndPassManager();
   Parser::parse();
-  Codegen::the_module->print(llvm::errs(), nullptr);
 }

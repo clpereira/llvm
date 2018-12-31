@@ -19,8 +19,12 @@ enum Token {
   tok_identifier = -4,
   tok_number = -5,
 
-  tok_special_char = -6,
-  tok_invalid = -7
+  tok_if = -6,
+  tok_then = -7,
+  tok_else = -8,
+
+  tok_special_char = -9,
+  tok_invalid = -10
 };
 
 class Parser;
@@ -58,6 +62,21 @@ class Lexer {
     case tok_extern:
 	{
 	  std::cout << "extern" << std::endl;
+	  break;
+	}
+    case tok_if:
+	{
+	  std::cout << "if" << std::endl;
+	  break;
+	}
+    case tok_then:
+	{
+	  std::cout << "then" << std::endl;
+	  break;
+	}
+    case tok_else:
+	{
+	  std::cout << "else" << std::endl;
 	  break;
 	}
     case tok_identifier:
@@ -106,6 +125,21 @@ class Lexer {
       {
 	lastToken = tok_def;
 	return tok_def;
+      }
+      if (identifierStr == "if")
+      {
+	lastToken = tok_if;
+	return tok_if;
+      }
+      if (identifierStr == "then")
+      {
+	lastToken = tok_then;
+	return tok_then;
+      }
+      if (identifierStr == "else")
+      {
+	lastToken = tok_else;
+	return tok_else;
       }
       if (identifierStr == "extern")
       {

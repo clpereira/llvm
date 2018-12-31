@@ -11,7 +11,7 @@ class Codegen {
   static llvm::IRBuilder<> builder;
   static std::unique_ptr<llvm::Module> the_module;
   static std::map<std::string, llvm::Value *> named_values;
-  static llvm::legacy::FunctionPassManager fpm;
+  static std::unique_ptr<llvm::legacy::FunctionPassManager>fpm;
   static std::unique_ptr<llvm::orc::KaleidoscopeJIT> jit;
 
   static void initializeModuleAndPassManager();

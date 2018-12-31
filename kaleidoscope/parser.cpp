@@ -26,7 +26,7 @@ int Parser::getNextToken()
   //Lexer::instance()->printToken();
   if (cur_tok == tok_special_char)
   {
-	cur_tok = Lexer::instance()->getLastSpecialChar();
+    cur_tok = Lexer::instance()->getLastSpecialChar();
   }
   return cur_tok;
 }
@@ -38,17 +38,55 @@ std::unique_ptr<ExprAST> Parser::parseNumberExpr()
   return std::move(result);
 }
 
+std::unique_ptr<ExprAST> Parser::parseIfExpr()
+{
+  getNextToken(); // eat the 'if'
+  
+  // condition
+  auto cond_expr = parseExpression();
+  if (!cond_expr)
+  {
+    return nullptr;
+  }
+  if (cur_tok != tok_then)
+  {
+    return Error::log("expected then");
+  }
+  getNextToken(); // eat the 'then'
+
+  auto then_expr = parseExpression();
+  if (!then_expr)
+  {
+    return nullptr;
+  }
+  if (cur_tok != tok_else)
+  {
+    return Error::log("expected else");
+  }
+  getNextToken();
+
+  auto else_expr = parseExpression();
+  if (!else_expr)
+  {
+    return nullptr;
+  }
+
+  return llvm::make_unique<IfExprAST>(std::move(cond_expr), 
+                                      std::move(then_expr), 
+                                      std::move(else_expr));
+}
+
 std::unique_ptr<ExprAST> Parser::parseParenExpr()
 {
   getNextToken(); // consume the '('
   auto V = parseExpression();
   if (!V)
   {
-	return nullptr;
+    return nullptr;
   }
   if (cur_tok != ')')
   {
-	return Error::log("expected ')'");
+    return Error::log("expected ')'");
   }
   getNextToken(); // eat next ')'
   return V;
@@ -69,26 +107,26 @@ std::unique_ptr<ExprAST> Parser::parseIdentifierExpr()
   expr_ast_vector_t args;
   if (cur_tok != ')') 
   {
-	while (1) 
-	{
-	  if (auto arg = parseExpression())
-	  {
-		args.push_back(std::move(arg));
-	  }
-	  else
-	  {
-		return nullptr;
-	  }
-	  if (cur_tok == ')')
-	  {
-		break;
-	  }
-	  if (cur_tok != ',')
-	  {
-		return Error::log("Expected ')' or ',' in argument list");
-	  }
-	  getNextToken();
-	}
+    while (1) 
+    {
+      if (auto arg = parseExpression())
+      {
+	args.push_back(std::move(arg));
+      }
+      else
+      {
+	return nullptr;
+      }
+      if (cur_tok == ')')
+      {
+	break;
+      }
+      if (cur_tok != ',')
+      {
+	return Error::log("Expected ')' or ',' in argument list");
+      }
+      getNextToken();
+    }
   }
   // consume next ')'
   getNextToken();
@@ -100,7 +138,7 @@ std::unique_ptr<ExprAST> Parser::parseExpression()
   auto lhs = parsePrimary();
   if (!lhs)
   {
-	return nullptr;
+    return nullptr;
   }
   return parseBinOpRHS(0, std::move(lhs));
 }
@@ -160,6 +198,10 @@ std::unique_ptr<ExprAST> Parser::parsePrimary()
   {
     return parseParenExpr();
   }
+  case tok_if:
+  {
+    return parseIfExpr();
+  }
   default: 
   {
     return Error::log("Unknown token when expecting an expression");
@@ -171,28 +213,27 @@ std::unique_ptr<PrototypeAST> Parser::parsePrototype()
 {
   if (cur_tok != tok_identifier)
   {
-	return Error::logP("Expected function name in prototype");
+    return Error::logP("Expected function name in prototype");
   }
   std::string fn_name = Lexer::instance()->identifierStr;
   getNextToken();
 
   if (cur_tok != '(')
   {
-	return Error::logP("Expected '(' ("+
-					 std::to_string(static_cast<int>('('))+
-					 ") in prototype, but found: '"+
-					 std::string(1, static_cast<char>(cur_tok))+
-					 "' ("+std::to_string(cur_tok)+")");
+    return Error::logP("Expected '(' ("+
+		       std::to_string(static_cast<int>('('))+
+		       ") in prototype, but found: '"+
+		       std::string(1, static_cast<char>(cur_tok))+
+		       "' ("+std::to_string(cur_tok)+")");
   }
-
   string_vector_t arg_names;
   while (getNextToken() == tok_identifier)
   {
-	arg_names.push_back(Lexer::instance()->identifierStr);
+    arg_names.push_back(Lexer::instance()->identifierStr);
   }
   if (cur_tok != ')')
   {
-	return Error::logP("Expected ')') in prototype");
+    return Error::logP("Expected ')') in prototype");
   }
   getNextToken(); // eat ')'
   
@@ -205,12 +246,12 @@ std::unique_ptr<FunctionAST> Parser::parseDefinition()
   auto proto = parsePrototype();
   if (!proto)
   {
-	return nullptr;
+    return nullptr;
   }
   // the body
   if (auto e = parseExpression())
   {
-	return llvm::make_unique<FunctionAST>(std::move(proto), std::move(e));
+    return llvm::make_unique<FunctionAST>(std::move(proto), std::move(e));
   }
   return nullptr;
 }
@@ -225,10 +266,10 @@ std::unique_ptr<FunctionAST> Parser::parseTopLevelExpr()
 {
   if (auto e = parseExpression())
   {
-	// make an anonymous prototype
-	auto proto = llvm::make_unique<PrototypeAST>("__anon_expr",
-												 std::vector<std::string>());
-	return llvm::make_unique<FunctionAST>(std::move(proto), std::move(e));
+    // make an anonymous prototype
+    auto proto = llvm::make_unique<PrototypeAST>("__anon_expr",
+						 std::vector<std::string>());
+    return llvm::make_unique<FunctionAST>(std::move(proto), std::move(e));
   }
   return nullptr;
 }
@@ -237,16 +278,18 @@ void Parser::handleDefinition()
 {
   if (auto fn_ast = parseDefinition())
   {
-	if (auto * fn_ir = fn_ast->codegen())
-	{
-	  std::cout << "Parsed a function definition:" << std::endl;
-	  fn_ir->print(llvm::errs());
-	  std::cout << std::endl;
-	}
+    if (auto * fn_ir = fn_ast->codegen())
+    {
+      std::cout << "Parsed a function definition:" << std::endl;
+      fn_ir->print(llvm::errs());
+      std::cout << std::endl;
+      Codegen::jit->addModule(std::move(Codegen::the_module));
+      Codegen::initializeModuleAndPassManager();
+    }
   }
   else
   {
-	getNextToken();
+    getNextToken();
   }
 }
 
@@ -254,16 +297,17 @@ void Parser::handleExtern()
 {
   if (auto proto_ast = parseExtern())
   {
-	if (auto * fn_ir = proto_ast->codegen())
-	{
-	  std::cout << "Parsed an extern:" << std::endl;
-	  fn_ir->print(llvm::errs());
-	  std::cout << std::endl;
-	}
+    if (auto * fn_ir = proto_ast->codegen())
+    {
+      std::cout << "Parsed an extern:" << std::endl;
+      fn_ir->print(llvm::errs());
+      std::cout << std::endl;
+      PrototypeAST::function_protos[proto_ast->getname()] = std::move(proto_ast);
+    }
   }
   else
   {
-	getNextToken();
+    getNextToken();
   }
 }
 
@@ -352,7 +396,5 @@ void Parser::mainloop()
 
 void Parser::parse()
 {
-  std::cerr << "ready> ";
-  getNextToken();
   mainloop();
 }
