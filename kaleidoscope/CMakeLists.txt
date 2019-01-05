@@ -8,7 +8,6 @@ find_program(LLVM_CONFIG "llvm-config")
 # set the llvm config command 
 # --libs core is missing from the command below, best is to script it so that
 # it can be extracted and then added automatically to target_link_libraries
-#set(LLVM_CONFIG_COMMAND ${LLVM_CONFIG} "--libs" "core" "--cxxflags" "--ldflags" "--system-libs") 
 set(LLVM_CXX_FLAGS_CONFIG_COMMAND ${LLVM_CONFIG} "--cxxflags") 
 set(LLVM_LD_FLAGS_CONFIG_COMMAND ${LLVM_CONFIG} "--ldflags" "--system-libs" "--libs" "core" "mcjit" "native")
 
@@ -36,6 +35,7 @@ execute_process(COMMAND ${LLVM_LD_FLAGS_CONFIG_COMMAND}
 if (NOT HAD_ERROR)
   # attach output to ld flags
   string(REPLACE "\n" " " STRIPPED_CONFIG_OUTPUT ${CONFIG_OUTPUT})
+  string(CONCAT STRIPPED_CONFIG_OUTPUT "-rdynamic " ${STRIPPED_CONFIG_OUTPUT})
   set(CMAKE_EXE_LINKER_FLAGS ${STRIPPED_CONFIG_OUTPUT})
 else()
   message(FATAL_ERROR "llvm-config failed with status ${HAD_ERROR}")
