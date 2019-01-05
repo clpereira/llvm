@@ -18,7 +18,7 @@ llvm::Value * IfExprAST::codegen()
   condv = Codegen::builder.CreateFCmpONE(condv, 
     llvm::ConstantFP::get(Codegen::the_context, llvm::APFloat(0.0)), "ifcond");
 
-  llvm::Function * the_function = Codegen::Builder.GetInsertBlock()->getParent();
+  llvm::Function * the_function = Codegen::builder.GetInsertBlock()->getParent();
   // create blocks for the then and the else cases. Insert the 'then' block at
   // the end of the function
   llvm::BasicBlock * then_bb = llvm::BasicBlock::Create(Codegen::the_context,
@@ -29,6 +29,39 @@ llvm::Value * IfExprAST::codegen()
   llvm::BasicBlock * merge_bb = llvm::BasicBlock::Create(Codegen::the_context,
                                                          "ifcont");
   Codegen::builder.CreateCondBr(condv, then_bb, else_bb);
+
+  // emit the then value
+  Codegen::builder.SetInsertPoint(then_bb);
+  llvm::Value * then_v = Then->codegen();
+  if (!then_v)
+  {
+    return nullptr;
+  }
+  Codegen::builder.CreateBr(merge_bb);
+  // codegen of 'then' can change the current block, update elseBB for the phi
+  then_bb = Codegen::builder.GetInsertBlock();
+
+  // emit the 'else' block
+  the_function->getBasicBlockList().push_back(else_bb);
+  Codegen::builder.SetInsertPoint(else_bb);
+  llvm::Value *else_v = Else->codegen();
+  if (!else_v)
+  {
+    return nullptr;
+  }
+  Codegen::builder.CreateBr(merge_bb);
+  // codegen of else can change the current block, update elsebb for the phi
+  else_bb = Codegen::builder.GetInsertBlock();
+
+  // emit the merge block
+  the_function->getBasicBlockList().push_back(merge_bb);
+  Codegen::builder.SetInsertPoint(merge_bb);
+  llvm::PHINode * pn = 
+    Codegen::builder.CreatePHI(llvm::Type::getDoubleTy(Codegen::the_context), 
+			       2, "iftmp");
+  pn->addIncoming(then_v, then_bb);
+  pn->addIncoming(else_v, else_bb);
+  return pn;
 }
 
 llvm::Value * VariableExprAST::codegen()
