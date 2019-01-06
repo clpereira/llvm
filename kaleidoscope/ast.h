@@ -40,6 +40,21 @@ class IfExprAST : public ExprAST {
     llvm::Value *codegen() override;
 };
 
+class ForExprAST : public ExprAST {
+  std::string var_name;
+  std::unique_ptr<ExprAST> start, end, step, body;
+
+ public:
+  ForExprAST(const std::string &var_name, std::unique_ptr<ExprAST> start,
+	     std::unique_ptr<ExprAST> end, std::unique_ptr<ExprAST> step,
+	     std::unique_ptr<ExprAST> body)
+    :
+  var_name(var_name), start(std::move(start)), end(std::move(end)),
+    step(std::move(step)), body(std::move(body)) {}
+
+  llvm::Value * codegen() override;
+};
+
 // VariableExprAST - Expression class for variables 
 class VariableExprAST: public ExprAST {
 private:

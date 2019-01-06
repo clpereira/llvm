@@ -29,6 +29,8 @@ private:
   static std::unique_ptr<ExprAST> parseNumberExpr();
   // ifexpr ::= 'if' expression 'then' expression 'else' expression
   static std::unique_ptr<ExprAST> parseIfExpr();
+  // forexpr::= 'for' identifier '=' expr ',' expr (',' expr)? 'in' expression
+  static std::unique_ptr<ExprAST> parseForExpr();
  
   // parenexpr ::= '(' expression ')'
   static std::unique_ptr<ExprAST> parseParenExpr();

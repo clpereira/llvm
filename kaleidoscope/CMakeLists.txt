@@ -62,7 +62,7 @@ include_directories("${PROJECT_BINARY_DIR}"
                     "${LLVM_SRC_DIR}")
 
 # add the executable
-add_executable(kcomp entrypoint.cpp kcomp.cpp ast.cpp lexer.cpp parser.cpp codegen.cpp error.cpp)
+add_executable(kcomp entrypoint.cpp kcomp.cpp ast.cpp lexer.cpp parser.cpp codegen.cpp error.cpp externs.cpp)
 #add_executable(kcomp toy.cpp)
 #target_link_libraries(kcomp LLVM-6.0)
 target_link_libraries(kcomp LLVM) 

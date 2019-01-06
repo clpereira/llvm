@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "kcomp.h"
+#include "externs.h"
 
 int main()
 {
