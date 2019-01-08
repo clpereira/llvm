@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.6) 
 set(CMAKE_C_COMPILER clang) 
 set(CMAKE_CXX_COMPILER clang++)
-set(LLVM_SRC_DIR "/Users/cristiano/development/llvm/llvm-7.0.0.src")
+# obtain home directory automatically
+#set(LLVM_SRC_DIR "/Users/cristiano/development/llvm/llvm-7.0.0.src")
+set(LLVM_SRC_DIR "/home/cristiano/development/llvm/llvm-7.0.1.src")
+
 
 # find the llvm-config file
 find_program(LLVM_CONFIG "llvm-config")
@@ -63,6 +66,4 @@ include_directories("${PROJECT_BINARY_DIR}"
 
 # add the executable
 add_executable(kcomp entrypoint.cpp kcomp.cpp ast.cpp lexer.cpp parser.cpp codegen.cpp error.cpp externs.cpp)
-#add_executable(kcomp toy.cpp)
-#target_link_libraries(kcomp LLVM-6.0)
 target_link_libraries(kcomp LLVM) 
