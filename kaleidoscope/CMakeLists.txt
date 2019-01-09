@@ -49,4 +49,3 @@ target_link_libraries(kcomp ${llvm_libs}
                              tinfo
                              pthread
                              m)
-
