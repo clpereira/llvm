@@ -397,6 +397,7 @@ void Parser::handleTopLevelExpression()
       // arguments, returns a double) so we can call it as a native function
       double (*fp)() = 
 	(double(*)())(intptr_t)cantFail(ExprSymbol.getAddress());
+	//(double(*)())(intptr_t)cantFail(ExprSymbol.getSymbolAddressInProcess());
       std::cerr << "Evaluated to " << fp() << std::endl;
 
       // Delete the anonymous expression module from the JIT

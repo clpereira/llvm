@@ -9,6 +9,7 @@ void KCompiler::initialize_and_run()
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
+  llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr);
 
   std::cerr << "ready> ";
   Parser::getNextToken();
